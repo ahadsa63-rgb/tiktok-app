@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AITipWorld - TikTok Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen">
+    <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-lg text-center">
+        <h1 class="text-3xl font-bold mb-6 text-cyan-400">TikTok Video Downloader</h1>
+        <input type="text" id="urlInput" placeholder="Paste TikTok Link Here..." class="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-cyan-400 mb-4 text-white">
+        <button onclick="downloadVideo()" class="w-full bg-cyan-500 hover:bg-cyan-600 text-gray-900 font-bold p-3 rounded transition">Download Without Watermark</button>
+        <div id="result" class="mt-6 hidden"></div>
+    </div>
+    <script>
+        async function downloadVideo() {
+            const url = document.getElementById('urlInput').value;
+            const resultDiv = document.getElementById('result');
+            if(!url) return alert('Please enter a link');
+            
+            resultDiv.innerHTML = "Downloading video to server, please wait...";
+            resultDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/download', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({url: url})
+                });
+                const data = await response.json();
+                if(data.success) {
+                    resultDiv.innerHTML = `
+                        <p class="text-green-400 mb-2 font-semibold">Video Ready!</p>
+                        <a href="http://127.0.0.1:8000/get-file" class="block bg-green-500 hover:bg-green-600 text-gray-900 font-bold p-3 rounded transition">
+                            Save Video to PC
+                        </a>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p class="text-red-400">Failed to download video.</p>`;
+                }
+            } catch(err) {
+                resultDiv.innerHTML = `<p class="text-red-400">Server connection error!</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
